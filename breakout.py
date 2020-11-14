@@ -68,6 +68,7 @@ class Breakout():
             clock.tick(60)
 
             ret_val, img = cam.read()
+            cv2.imshow('my webcam', img)
             # process key presses
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
