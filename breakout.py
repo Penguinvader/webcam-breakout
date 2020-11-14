@@ -77,14 +77,6 @@ class Breakout():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         sys.exit()
-                    if event.key == pygame.K_LEFT:
-                        batrect = batrect.move(-bat_speed, 0)
-                        if (batrect.left < 0):
-                            batrect.left = 0
-                    if event.key == pygame.K_RIGHT:
-                        batrect = batrect.move(bat_speed, 0)
-                        if (batrect.right > width):
-                            batrect.right = width
 
             if which_side(img)==0:
                 batrect = batrect.move(-bat_speed, 0)
