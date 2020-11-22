@@ -5,11 +5,12 @@ import cv2
 
 
 def which_side(img):
-    height, width, channels = img.shape
+    height, width = img.shape
     left_side = img[:, 0:width // 3]
     middle = img[:, width // 3:2 * (width // 3)]
     right_side = img[:, 2 * (width // 3):]
-    max_side = max(cv2.sumElems(left_side), cv2.sumElems(middle), cv2.sumElems(right_side))
+    max_side = max(cv2.sumElems(left_side), cv2.sumElems(
+        middle), cv2.sumElems(right_side))
     if max_side == cv2.sumElems(left_side):
         return 0
     elif max_side == cv2.sumElems(middle):
@@ -18,9 +19,20 @@ def which_side(img):
         return 2
 
 
+def find_x(img):
+    height, width = img.shape
+    xcoords = 0
+    div = 0
+    for i in range(height):
+        for j in range(width):
+            pixel = img[i, j]
+            if pixel == 255:
+                xcoords += j
+                div += 1
+    return ((xcoords / div) / width)
+
 
 cam = cv2.VideoCapture(0)
-cv2.destroyAllWindows()
 
 
 class Breakout():
@@ -68,6 +80,8 @@ class Breakout():
             clock.tick(60)
 
             ret_val, img = cam.read()
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
             cv2.imshow('my webcam', img)
             # process key presses
             for event in pygame.event.get():
@@ -77,17 +91,15 @@ class Breakout():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         sys.exit()
-
-            if which_side(img)==0:
+                        
+            if which_side(img) == 0:
                 batrect = batrect.move(-bat_speed, 0)
                 if (batrect.left < 0):
                     batrect.left = 0
-            elif which_side(img)==2:
+            elif which_side(img) == 2:
                 batrect = batrect.move(bat_speed, 0)
                 if (batrect.right > width):
                     batrect.right = width
-
-
 
             # check if bat has hit ball
             if ballrect.bottom >= batrect.top and \
