@@ -3,7 +3,7 @@ import pygame
 import random
 import cv2
 
-
+#find which side the player's hand is on
 def which_side(img):
     height, width = img.shape
     left_side = img[:, 0:width // 3]
@@ -18,7 +18,7 @@ def which_side(img):
     else:
         return 2
 
-
+#find the x coordinate the player's hand is at
 def find_x(img):
     height, width = img.shape
     xcoords = 0
@@ -91,7 +91,7 @@ class Breakout():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         sys.exit()
-                        
+
             if which_side(img) == 0:
                 batrect = batrect.move(-bat_speed, 0)
                 if (batrect.left < 0):
@@ -164,7 +164,7 @@ class Breakout():
                             if event.type == pygame.KEYDOWN:
                                 if event.key == pygame.K_ESCAPE:
                                     sys.exit()
-                                if not (event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT):
+                                else:
                                     restart = True
                         if restart:
                             screen.fill(bgcolour)
