@@ -2,6 +2,7 @@ import sys
 import pygame
 import random
 import cv2
+import numpy as np
 
 #find which side the player's hand is on
 def which_side(img):
@@ -19,17 +20,11 @@ def which_side(img):
         return 2
 
 #find the x coordinate the player's hand is at
-def find_x(img):
+def find_x(img, contour):
+    x,y,w,h = cv2.boundingRect(contour)
     height, width = img.shape
-    xcoords = 0
-    div = 0
-    for i in range(height):
-        for j in range(width):
-            pixel = img[i, j]
-            if pixel == 255:
-                xcoords += j
-                div += 1
-    return ((xcoords / div) / width)
+    xavg = x + (w / 2)
+    return ((xavg / width)-0.5) * 2
 
 
 cam = cv2.VideoCapture(0)
@@ -82,7 +77,14 @@ class Breakout():
             ret_val, img = cam.read()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-            cv2.imshow('my webcam', img)
+            img = cv2.erode(img, np.ones((5,5), np.uint8), iterations=1)
+            contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            black = np.zeros(shape=img.shape, dtype=np.uint8)
+            if contours:
+                c = max(contours, key = cv2.contourArea)
+            cv2.drawContours(black, c, -1, 255, 3)
+            cv2.imshow('my webcam', black)
+            print(find_x(img,c))
             # process key presses
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -92,14 +94,11 @@ class Breakout():
                     if event.key == pygame.K_ESCAPE:
                         sys.exit()
 
-            if which_side(img) == 0:
-                batrect = batrect.move(-bat_speed, 0)
-                if (batrect.left < 0):
-                    batrect.left = 0
-            elif which_side(img) == 2:
-                batrect = batrect.move(bat_speed, 0)
-                if (batrect.right > width):
-                    batrect.right = width
+            batrect = batrect.move(bat_speed * find_x(img, c), 0)
+            if (batrect.left < 0):
+                batrect.left = 0
+            if (batrect.right > width):
+                batrect.right = width
 
             # check if bat has hit ball
             if ballrect.bottom >= batrect.top and \
