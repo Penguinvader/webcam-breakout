@@ -74,8 +74,8 @@ class Breakout():
             # 60 frames per second
             clock.tick(60)
 
-            ret_val, img = cam.read()
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret_val, original_img = cam.read()
+            img = cv2.cvtColor(original_img, cv2.COLOR_BGR2GRAY)
             ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
             img = cv2.erode(img, np.ones((5,5), np.uint8), iterations=1)
             contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -83,8 +83,8 @@ class Breakout():
             if contours:
                 c = max(contours, key = cv2.contourArea)
             cv2.drawContours(black, c, -1, 255, 3)
-            cv2.imshow('my webcam', black)
-            print(find_x(img,c))
+            cv2.imshow('my webcam', original_img)
+            cv2.imshow('hand contour', black)
             # process key presses
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
